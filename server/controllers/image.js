@@ -1,6 +1,7 @@
 require('../models/database');
 const Image = require('../models/image')
 const Token = require('../models/token')
+
 const fs = require('fs')
 
 exports.main = async (req, res) => {
@@ -31,21 +32,22 @@ exports.loadImage = async (req, res) => {
 
 exports.saveImage = async (req, res) => {
   try {
+    const { fileTypeFromBuffer } = await import('file-type');
     const findExistingImage = await Image.findOne({ Id: req.body.Id }).exec();
 
     const TOKEN = await Token.findOne({ token: req.body.token })
     if (!TOKEN) {
-      res.send('[TOKEN ERROR] Access token not valid.');
+      res.json({ data: '[TOKEN ERROR] Access token not valid.', error: { type: 'TOKEN:404', details: 'The provided access token is invalid or does not exist.', timestamp: new Date().toISOString() } });
       return;
     }
     if (TOKEN.maxUses <= TOKEN.uses) {
-      res.send(`[TOKEN ERROR] Token usage limit of ${TOKEN.maxUses} reached.`);
+      res.json({ data: `[TOKEN ERROR] Token usage limit of ${TOKEN.maxUses} reached.`, error: { type: 'TOKEN:429', details: 'The maximum usage limit for this token has been reached.', timestamp: new Date().toISOString() } });
       return;
     }
     if (findExistingImage) {
-      res.send('[DATABASE ERROR] Image with the same ID already exists.');
+      res.json({ data: '[DATABASE ERROR] Image with the same ID already exists.', error: { type: 'DATABASE:409', details: 'An image with the provided ID already exists in the database.', timestamp: new Date().toISOString() } });
       return;
-    }
+    }    
     
     await Token.updateOne({ token: req.body.token }, { $inc: { uses: 1 } })
 
@@ -54,13 +56,46 @@ exports.saveImage = async (req, res) => {
     image.type = 'image'
     image.Id = req.body.Id
     image.uploaderToken = TOKEN.token
-    if (req.files.image && req.files.image !== ''){
-      const Data = fs.readFileSync(req.files.image.tempFilePath);
-     image.file = Data
+    if (req.files.image && req.files.image !== '') {
+      const buffer = fs.readFileSync(req.files.image.tempFilePath);
+      const fileInfo = await fileTypeFromBuffer(buffer);
+
+      if (!fileInfo || !fileInfo.mime.startsWith('image/')) {
+        res.json({ data: '[FILE ERROR] Invalid file format. Only image files are allowed.', error: { type: 'FILE:400', details: 'The uploaded file is not a valid image.', timestamp: new Date().toISOString() } });
+        return;
+      }
+      
+      image.file = buffer;
     }
     
     image.save()
-    res.send('[SUCCESS] Image has been uploaded to the server.')
+    res.json({data:'[SUCCESS] Image has been uploaded to the server.', success:{type:"DATABASE:201", details:`The image was successfully uploaded to the server and added to the Database.`, timestamp: new Date().toISOString(), fileId:`${image.Id}`, uploader:`${TOKEN.owner}`}});
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.deleteImage = async (req, res) => {
+  try {
+    const image = await Image.findOne({ Id: req.params.imageId });
+
+    if (image) {
+      const TOKEN = await Token.findOne({ token: req.body.token })
+      if (!TOKEN) {
+        res.json({ data: '[TOKEN ERROR] Access token not valid.', error: { type: 'TOKEN:401', details: 'The provided access token is invalid or does not exist.', timestamp: new Date().toISOString() } });
+        return;
+      }
+      if (TOKEN.token !== image.uploaderToken) {
+        res.json({ data: `[TOKEN ERROR] Token for ${image.Id} is incorrect.`, error: { type: 'TOKEN:401', details: 'Can not delete a photo without authority.', timestamp: new Date().toISOString() } });
+        return;
+      }
+      await image.deleteOne();
+      res.json({data:'[SUCCESS] Image has been deleted.', success:{type:"DATABASE:200", details:`The image was successfully deleted from the Database.`, timestamp: new Date().toISOString(), fileId:`${image.Id}`}});
+    } else {
+      res.json({ data: '[DATABASE ERROR] Image not Found.', error: { type: 'FILE:404', details: 'The server can not find the specified file in the Database.', timestamp: new Date().toISOString()}});
+    }
+
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');
