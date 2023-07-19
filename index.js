@@ -20,5 +20,5 @@ app.use(fileUpload({
 const routes = require('./server/routes/siteRoutes.js');
 app.use('/', routes);
 
-const port = 3001;
+const port = 3002;
 server.listen(port, () => console.log(`Listening to port ${port}`));

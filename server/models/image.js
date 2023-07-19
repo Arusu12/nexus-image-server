@@ -10,13 +10,9 @@ const image = new mongoose.Schema({
     required: true,
   },
   file: Buffer,
-  name:{
-    type: String,
-    required: true,
-  },
   dateUploaded: {
     type: Date,
-    default:Date.now() + 12030450000
+    default:Date.now()
   }
 });
 
