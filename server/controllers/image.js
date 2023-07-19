@@ -1,5 +1,6 @@
 require('../models/database');
 const Image = require('../models/image')
+const Token = require('../models/token')
 const fs = require('fs')
 
 exports.main = async (req, res) => {
@@ -32,24 +33,34 @@ exports.saveImage = async (req, res) => {
   try {
     const findExistingImage = await Image.findOne({ Id: req.body.Id }).exec();
 
-    if (findExistingImage) {
-      res.send('[DATABASE ERROR] Image with same ID already exists.');
-      return;
-    }
-    if(!process.env.IMAGE_MONGODB_URI.includes(req.body.token)) {
+    const TOKEN = await Token.findOne({ token: req.body.token })
+    if (!TOKEN) {
       res.send('[TOKEN ERROR] Access token not valid.');
       return;
-    };
+    }
+    if (TOKEN.maxUses <= TOKEN.uses) {
+      res.send(`[TOKEN ERROR] Token usage limit of ${TOKEN.maxUses} reached.`);
+      return;
+    }
+    if (findExistingImage) {
+      res.send('[DATABASE ERROR] Image with the same ID already exists.');
+      return;
+    }
+    
+    await Token.updateOne({ token: req.body.token }, { $inc: { uses: 1 } })
+
     const image = new Image({})
 
     image.type = 'image'
     image.Id = req.body.Id
+    image.uploaderToken = TOKEN.token
     if (req.files.image && req.files.image !== ''){
       const Data = fs.readFileSync(req.files.image.tempFilePath);
      image.file = Data
     }
     
     image.save()
+    res.send('[SUCCESS] Image has been uploaded to the server.')
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');

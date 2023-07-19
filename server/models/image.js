@@ -10,6 +10,7 @@ const image = new mongoose.Schema({
     required: true,
   },
   file: Buffer,
+  uploaderToken: String,
   dateUploaded: {
     type: Date,
     default:Date.now()
