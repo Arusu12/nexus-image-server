@@ -1,6 +1,7 @@
 require('../models/database');
 const Image = require('../models/image')
 const Token = require('../models/token')
+const sharp = require('sharp');
 
 const fs = require('fs')
 
@@ -15,15 +16,31 @@ exports.main = async (req, res) => {
 
 exports.loadImage = async (req, res) => {
   try {
-    const image = await Image.findOne({ Id: req.params.imageId }).exec();
+    const { imageId } = req.params;
+    const size = req.query.size;
+
+    const image = await Image.findOne({ Id: imageId }).exec();
 
     if (!image) {
       res.status(404).send('Image not found.');
       return;
     }
 
+    let imageBuffer = image.file;
+
+    if (size && !isNaN(size)) {
+      const percentageSize = parseFloat(size) / 100;
+
+      const { width: originalWidth, height: originalHeight } = await sharp(imageBuffer).metadata();
+
+      const newWidth = Math.round(originalWidth * percentageSize);
+      const newHeight = Math.round(originalHeight * percentageSize);
+
+      imageBuffer = await sharp(imageBuffer).resize(newWidth, newHeight).toBuffer();
+    }
+
     res.contentType('image/png');
-    res.send(image.file);
+    res.send(imageBuffer);
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');

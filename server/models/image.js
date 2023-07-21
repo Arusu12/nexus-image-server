@@ -17,6 +17,8 @@ const image = new mongoose.Schema({
   }
 });
 
+image.index({ Id: 1 });
+
 const Image = mongoose.model('image', image);
 
 module.exports = Image

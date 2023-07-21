@@ -17,6 +17,7 @@
     "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
     "mongoose": "^7.2.2",
-    "node-cron": "^3.0.2"
+    "node-cron": "^3.0.2",
+    "sharp": "^0.32.4"
   }
 }
