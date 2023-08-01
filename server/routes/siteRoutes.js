@@ -4,6 +4,8 @@ const router = express.Router();
 const image = require('../controllers/image');
 
 router.get('/', image.main);
+router.get('/gallery/', image.gallery);
+router.get('/gallery/:name', image.galleryByName);
 
 router.get('/image/:imageId/', image.loadImage);
 router.post('/saveImage', image.saveImage);

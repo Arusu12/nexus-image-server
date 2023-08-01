@@ -14,6 +14,28 @@ exports.main = async (req, res) => {
   }
 };
 
+exports.gallery = async (req, res) => {
+  try {
+    const image = await Image.find({},{Id:1})
+    res.render('gallery', {image})
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+exports.galleryByName = async (req, res) => {
+  try {
+    const name = req.params.name
+    const token = await Token.find({owner: name}, {Id:1})
+    const image = await Image.find({uploaderToken: token.token})
+    res.render('gallery', {image})
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
 exports.loadImage = async (req, res) => {
   try {
     const { imageId } = req.params;
