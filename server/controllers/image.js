@@ -30,11 +30,10 @@ exports.gallery = async (req, res) => {
 exports.list = async (req, res) => {
   try {
     const images = await Image.find({uploaderToken: req.body.token})
-
     const map = images.map((image) => {
       return {
-        Id: image.Id, // Assuming 'Id' is the property in the Image model
-        uploaded: image.dateUploaded, // Assuming 'dateUploaded' is the property in the Image model
+        Id: image.Id,
+        uploaded: image.dateUploaded,
       };
     });
 

@@ -5,20 +5,14 @@ Developed by Arusu mainly for storing files for sites created by him, while maki
 
 Currently available routes-
 ```
-GET Request to '/image/:imageId/' to view image.
+`GET` Request to '/image/:imageId/' to view image.
+`GET` Request to '/image/gallery/?token=YOUR_TOKEN_HERE' to view images uploades using one token.
+`POST` Request to '/saveImage' with "token, image, Id" parameteres in body to save an image.
+`POST` Request to '/image/:imageId/delete' with "token" parameteres in body to delete an image.
 ```
-```
-GET Request to '/image/gallery/?token=YOUR_TOKEN_HERE' to view images uploades using one token.
-```
-```
-POST Request to '/saveImage' with "token, image, Id" parameteres in body to save an image.
-```
-```
-POST Request to '/image/:imageId/delete' with "token" parameteres in body to delete an image.
-```
-Please make sure to use formData.
+Please make sure to use formData and append the parameters.
 
-An npm library to easily do the tasks is being developed along with the image server. Please be patient and keep an eye on the repository.
+Interact with the server with the official npm package- `https://www.npmjs.com/package/nis.js`
 
 How to host the server on render using easy steps-
 >1. Create new 'Web Service'.
@@ -29,55 +23,4 @@ How to host the server on render using easy steps-
 >6. Create the web server and wait for it to be deployed.
 >7. Go to Environment and create new secret file with `.env` name and `IMAGE_MONGODB_URI = 'YOUR_DATABASE_URI'` as Contents.
 
-Example of using the server using axios-
-```
-const axios = require('axios');
-const FormData = require('form-data');
-const fs = require('fs');
-
-async function saveImage(token, imageId, imagePath) {
-  try {
-    const formData = new FormData();
-    formData.append('token', token);
-    formData.append('Id', imageId);
-    formData.append('image', fs.createReadStream(imagePath));
-
-    const response = await axios.post('http://example.com/saveImage', formData, {
-      headers: formData.getHeaders()
-    });
-
-    return response.data;
-  } catch (error) {
-    console.error(error);
-    throw new Error('Failed to save image.');
-  }
-}
-
-async function deleteImage(token, imageId) {
-    try {
-      const formData = new FormData();
-      formData.append('token', token);
-  
-      const response = await axios.post(`http://example.com/image/${imageId}/delete`, formData, {
-        headers: formData.getHeaders()
-      });
-  
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to delete image.');
-    }
-  }
-
-// Example usage:
-// The functions provided here should be used under async with await.
-(async () => {
-    try {
-      const result = await saveImage('YOUR_TOKEN_HERE', 'YOUR_IMAGE_ID_HERE', 'YOUR_IMAGE_PATH_HERE');
-      console.log(result);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  })();
-```
 **It's hereby allowed to be used in any kind of work of proper sense with proper credits given to the creator.**
