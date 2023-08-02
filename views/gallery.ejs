@@ -1,58 +1,170 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Nexus Image Server</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f2f2f2;
-    }
-    .container {
-      text-align: center;
-    }
-    .logo {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-    .description {
-      font-size: 1.2rem;
-      color: #666;
-      margin-bottom: 2rem;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .gallery img {
-      width: 100%;
-      height: auto;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1 class="logo">Nexus Image Server</h1>
-    <p class="description">An image server to store and serve images to Nexus.</p>
-    <div class="gallery">
-        <% if (image) image.forEach(function(img, index){ %>
-            <img src="/image/<%= img.Id %>/" alt="<%= img.Id %>">
-        <% }) %>
-    </div>
-  </div>
-</body>
-</html>
+    <style>
+      html {
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+      }
+  
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+  
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-size: 1rem;
+        line-height: 1.25;
+        background-color: #18222d;
+      }
+  
+      .grid {
+        width: 100%;
+        max-width: 60rem;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+  
+      .grid-block {
+        padding: 10px;
+      }
+  
+      .image-grid {
+        -webkit-perspective: 1000px;
+        perspective: 1000px;
+      }
+  
+      .image-grid .tile-link:hover .tile-img {
+        top: -1rem;
+        left: -1rem;
+      }
+  
+      .image-grid .tile-img {
+        position: relative;
+        top: 0;
+        left: 0;
+        -webkit-transition-property: opacity, top, left, box-shadow;
+        transition-property: opacity, top, left, box-shadow;
+      }
+  
+      .tile-link {
+        display: block;
+      }
+  
+      .tile-link:hover .tile-img {
+        opacity: 1;
+      }
+  
+      .tile-link:hover .tile-img-link {
+        display: block;
+      }
+  
+      .tile-link:hover .tile-img-link:hover .tile-img {
+        opacity: 0.5;
+      }
+  
+      .tile-img {
+        height: 50%;
+        max-height: 300px;
+        display: block;
+        width: 100%;
+        height: auto;
+        opacity: 1;
+        -webkit-transition-property: opacity;
+        transition-property: opacity;
+        -webkit-transition-duration: 0.125s;
+        transition-duration: 0.125s;
+        -webkit-transition-timing-function: ease-in;
+        transition-timing-function: ease-in;
+      }
+  
+      .tile-link:hover .tile-img1 {
+        box-shadow: 5px 5px rgba(244, 170, 200, 0.4),
+          10px 10px rgba(244, 170, 200, 0.3), 15px 15px rgba(244, 170, 200, 0.2),
+          20px 20px rgba(244, 170, 200, 0.1), 25px 25px rgba(244, 170, 200, 0.05);
+      }
+  
+      .tile-link:hover .tile-img2 {
+        box-shadow: 5px 5px rgba(45, 186, 233, 0.4), 10px 10px rgba(45, 186, 233, 0.3),
+          15px 15px rgba(45, 186, 233, 0.2), 20px 20px rgba(45, 186, 233, 0.1),
+          25px 25px rgba(45, 186, 233, 0.05);
+      }
+  
+      .tile-link:hover .tile-img3 {
+        box-shadow: 5px 5px rgba(214, 221, 244, 0.4),
+          10px 10px rgba(214, 221, 244, 0.3), 15px 15px rgba(214, 221, 244, 0.2),
+          20px 20px rgba(214, 221, 244, 0.1), 25px 25px rgba(214, 221, 244, 0.05);
+      }
+  
+      .tile-link:hover .tile-img4 {
+        box-shadow: 5px 5px rgba(82, 119, 192, 0.4), 10px 10px rgba(82, 119, 192, 0.3),
+          15px 15px rgba(82, 119, 192, 0.2), 20px 20px rgba(82, 119, 192, 0.1),
+          25px 25px rgba(82, 119, 192, 0.05);
+      }
+  
+      .tile-link:hover .tile-img5 {
+        box-shadow: 5px 5px rgba(138, 218, 245, 0.4),
+          10px 10px rgba(138, 218, 245, 0.3), 15px 15px rgba(138, 218, 245, 0.2),
+          20px 20px rgba(138, 218, 245, 0.1), 25px 25px rgba(138, 218, 245, 0.05);
+      }
+  
+      .tile-link:hover .tile-img6 {
+        box-shadow: 5px 5px rgba(203, 215, 193, 0.4),
+          10px 10px rgba(203, 215, 193, 0.3), 15px 15px rgba(203, 215, 193, 0.2),
+          20px 20px rgba(203, 215, 193, 0.1), 25px 25px rgba(203, 215, 193, 0.05);
+      }
+  
+      .tile-link:hover .tile-img7 {
+        box-shadow: 5px 5px rgba(91, 209, 250, 0.4), 10px 10px rgba(91, 209, 250, 0.3),
+          15px 15px rgba(91, 209, 250, 0.2), 20px 20px rgba(91, 209, 250, 0.1),
+          25px 25px rgba(91, 209, 250, 0.05);
+      }
+  
+      .tile-link:hover .tile-img8 {
+        box-shadow: 5px 5px rgba(145, 156, 196, 0.4),
+          10px 10px rgba(145, 156, 196, 0.3), 15px 15px rgba(145, 156, 196, 0.2),
+          20px 20px rgba(145, 156, 196, 0.1), 25px 25px rgba(145, 156, 196, 0.05);
+      }
+  
+      .tile-link:hover .tile-img9 {
+        box-shadow: 5px 5px rgba(188, 97, 129, 0.4), 10px 10px rgba(188, 97, 129, 0.3),
+          15px 15px rgba(188, 97, 129, 0.2), 20px 20px rgba(188, 97, 129, 0.1),
+          25px 25px rgba(188, 97, 129, 0.05);
+      }
+  
+      .tile-link:hover .tile-img10 {
+        box-shadow: 5px 5px rgba(4, 140, 231, 0.4), 10px 10px rgba(4, 140, 231, 0.3),
+          15px 15px rgba(4, 140, 231, 0.2), 20px 20px rgba(4, 140, 231, 0.1),
+          25px 25px rgba(4, 140, 231, 0.05);
+      }
+  
+      .logo {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #e7e7e7;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <h1 class="logo"> Nexus Image Server <div style="text-align: center;font-size: medium;">Uploads by - <%= author %> </div>
+  </h1>
+  <div class="grid image-grid"><% images.forEach(function(img, index) { %> <div class="grid-block">
+      <div class="tile">
+        <a class="tile-link" href="/image/<%= img.Id %>/">
+          <img class="tile-img tile-img5" src="/image/<%= img.Id %>/?size=50" alt="Image">
+        </a>
+      </div>
+    </div><% }); %>
+    <% if(images == '') { %> 
+      <div style="border: 2px solid #333; padding: 20px; width: 80%; margin: 50px auto; text-align: center; color: white;">
+        <h2>404 : No User Found</h2>
+      </div>
+      <% } else { %><% } %>
+   </div>

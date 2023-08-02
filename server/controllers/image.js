@@ -16,20 +16,11 @@ exports.main = async (req, res) => {
 
 exports.gallery = async (req, res) => {
   try {
-    const image = await Image.find({},{Id:1})
-    res.render('gallery', {image})
-  } catch (error) {
-    console.log(error);
-    res.status(500).send('Internal Server Error');
-  }
-};
-
-exports.galleryByName = async (req, res) => {
-  try {
-    const name = req.params.name
-    const token = await Token.find({owner: name}, {Id:1})
-    const image = await Image.find({uploaderToken: token.token})
-    res.render('gallery', {image})
+    const token = req.query.token
+    const getAuthor = async (token) => (await Token.findOne({ token: token })) ? (await Token.findOne({ token: token })).owner : 'Ghost';
+    const author = await getAuthor(token)
+    const images = await Image.find({uploaderToken: token})
+    res.render('gallery', {images, author})
   } catch (error) {
     console.log(error);
     res.status(500).send('Internal Server Error');

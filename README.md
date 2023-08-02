@@ -8,6 +8,9 @@ Currently available routes-
 GET Request to '/image/:imageId/' to view image.
 ```
 ```
+GET Request to '/image/gallery/?token=YOUR_TOKEN_HERE' to view images uploades using one token.
+```
+```
 POST Request to '/saveImage' with "token, image, Id" parameteres in body to save an image.
 ```
 ```
